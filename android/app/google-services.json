@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "185076177526",
+    "project_id": "rijoxx-41bf7",
+    "storage_bucket": "rijoxx-41bf7.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:185076177526:android:3fad221b434c9c6fd9dd57",
+        "android_client_info": {
+          "package_name": "com.example.rijox"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "185076177526-ebjk4ufddgf9o4pd60a9tbufh8o1i864.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.rijox",
+            "certificate_hash": "1c54de50b90d07591359c3e92a4451ec1110ab1f"
+          }
+        },
+        {
+          "client_id": "185076177526-59hj462n53rranusi7qis9gsbdf7ekle.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCdQDu0QDHqce_DZUKAAYXnoVz8nKpOAVw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "185076177526-59hj462n53rranusi7qis9gsbdf7ekle.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
