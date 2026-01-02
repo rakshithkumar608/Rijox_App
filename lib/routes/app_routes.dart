@@ -28,7 +28,11 @@ class AppRoutes {
     login: (_) => const LoginPage(),
     register: (_) => const RegisterPage(),
     forgotPassword: (_) => const ForgotPasswordPage(),
-    otpVerify: (_) => const OTPVerifyPage(),
-    resetPassword:(_) => const ResetPasswordPage(),
+    otpVerify: (_) => const OTPVerifyPage(
+      verificationId:'',
+      email:'',
+      phone: '',
+    ),
+    resetPassword:(_) => const ResetPasswordPage(email: '',),
   };
 }
