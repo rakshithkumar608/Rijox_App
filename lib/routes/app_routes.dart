@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:rijox/presentation/pages/auth/forgot_password_page.dart';
 import 'package:rijox/presentation/pages/auth/login_page.dart';
+import 'package:rijox/presentation/pages/auth/profile_page.dart';
 import 'package:rijox/presentation/pages/auth/register_page.dart';
 import 'package:rijox/presentation/pages/home/home_page.dart';
 import 'package:rijox/presentation/pages/onboarding/onboarding_page.dart';
@@ -19,6 +20,7 @@ class AppRoutes {
   static const forgotPassword = "/forgot_password";
   static const otpVerify = "/otp_verify";
   static const resetPassword = "/reset_password";
+  static const profile = "/profile";
 
   static Map<String, WidgetBuilder> routes = {
     // root:(_) => const RootPage(),
@@ -28,11 +30,9 @@ class AppRoutes {
     login: (_) => const LoginPage(),
     register: (_) => const RegisterPage(),
     forgotPassword: (_) => const ForgotPasswordPage(),
-    otpVerify: (_) => const OTPVerifyPage(
-      verificationId:'',
-      email:'',
-      phone: '',
-    ),
-    resetPassword:(_) => const ResetPasswordPage(email: '',),
+    otpVerify: (_) =>
+        const OTPVerifyPage(verificationId: '', email: '', phone: ''),
+    resetPassword: (_) => const ResetPasswordPage(email: ''),
+    profile: (_) => const ProfilePage(),
   };
 }

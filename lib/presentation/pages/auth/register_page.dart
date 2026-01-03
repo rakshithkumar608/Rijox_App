@@ -21,23 +21,27 @@ class _RegisterPageState extends State<RegisterPage> {
 
   bool loading = false;
   bool googleLoading = false;
-  
-  get Navigate => null;
 
+  /// EMAIL/PASSWORD REGISTRATION
   Future<void> registerUser() async {
     if (!_formKey.currentState!.validate()) return;
 
+    final name = nameController.text.trim();
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
 
     try {
       setState(() => loading = true);
 
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+      // 1. Create user with email/password
+      final userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(email: email, password: password);
 
+      // 2. Save display name in Firebase
+      await userCredential.user?.updateDisplayName(name);
+      await userCredential.user?.reload();
+
+      // 3. Success message
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           backgroundColor: Colors.green,
@@ -45,7 +49,8 @@ class _RegisterPageState extends State<RegisterPage> {
         ),
       );
 
-      Navigate.pushReplacement(
+      // 4. Navigate to HomePage
+      Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const HomePage()),
       );
@@ -68,8 +73,9 @@ class _RegisterPageState extends State<RegisterPage> {
     }
   }
 
+  /// GOOGLE SIGN-IN
   Future<void> signInWithGoogle() async {
-    try{
+    try {
       setState(() => googleLoading = true);
 
       final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
@@ -78,16 +84,16 @@ class _RegisterPageState extends State<RegisterPage> {
       final googleAuth = await googleUser.authentication;
 
       final credential = GoogleAuthProvider.credential(
-        idToken: googleAuth.idToken, 
+        idToken: googleAuth.idToken,
         accessToken: googleAuth.accessToken,
       );
 
       await FirebaseAuth.instance.signInWithCredential(credential);
 
       Navigator.pushReplacement(
-        context, 
+        context,
         MaterialPageRoute(builder: (_) => const HomePage()),
-        );
+      );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -104,25 +110,17 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent, elevation: 0,
-      ),
-
+      appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0),
       body: Container(
         height: MediaQuery.of(context).size.height,
         width: MediaQuery.of(context).size.width,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              Color(0xffb51837),
-              Color(0xff661c3a),
-              Color(0xff301939)
-            ],
+            colors: [Color(0xffb51837), Color(0xff661c3a), Color(0xff301939)],
             begin: Alignment.topLeft,
             end: Alignment.topRight,
           ),
         ),
-        
         child: SafeArea(
           child: SingleChildScrollView(
             child: Column(
@@ -130,61 +128,64 @@ class _RegisterPageState extends State<RegisterPage> {
               children: [
                 const Padding(
                   padding: EdgeInsets.only(left: 30, top: 30),
-                  child: Text( 
+                  child: Text(
                     "\nCreate Account",
                     style: TextStyle(
-                      color: Colors.white, 
-                      fontSize: 40, 
+                      color: Colors.white,
+                      fontSize: 40,
                       fontWeight: FontWeight.bold,
                     ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 40),
-
-              Container(
-                padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 25),
-
-                decoration: const BoxDecoration(
-                  color: Colors.white, 
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
                   ),
                 ),
-
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        "Full Name",
-                        style: TextStyle(
-                          color: Color(0xffb51837),
+                const SizedBox(height: 40),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 40,
+                    horizontal: 30,
+                  ),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(30),
+                      topRight: Radius.circular(30),
+                      bottomLeft: Radius.circular(30),
+                      bottomRight: Radius.circular(30),
+                    ),
+                  ),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Full Name
+                        const Text(
+                          "Full Name",
+                          style: TextStyle(
+                            color: Color(0xffb51837),
                             fontSize: 24,
-                            fontWeight: FontWeight.bold
-                        ), 
-                      ),
-                      TextFormField(
-                        controller: nameController,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        TextFormField(
+                          controller: nameController,
                           validator: Validators.name,
                           decoration: const InputDecoration(
                             hintText: "Enter your Name",
                             prefixIcon: Icon(Icons.person_outline),
                           ),
-                      ),
+                        ),
+                        const SizedBox(height: 20),
 
-                const SizedBox(height: 20),
-
-                const Text("Email",
-                style: TextStyle(
-                  color: Color(0xffb51837),
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold
-                ),
-                ),
-                TextFormField(
+                        // Email
+                        const Text(
+                          "Email",
+                          style: TextStyle(
+                            color: Color(0xffb51837),
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        TextFormField(
                           controller: emailController,
                           validator: Validators.email,
                           decoration: const InputDecoration(
@@ -192,10 +193,10 @@ class _RegisterPageState extends State<RegisterPage> {
                             prefixIcon: Icon(Icons.email_outlined),
                           ),
                         ),
-
                         const SizedBox(height: 20),
 
-                     const Text(
+                        // Password
+                        const Text(
                           "Password",
                           style: TextStyle(
                             color: Color(0xffb51837),
@@ -212,101 +213,116 @@ class _RegisterPageState extends State<RegisterPage> {
                             prefixIcon: Icon(Icons.lock_outline),
                           ),
                         ),
+                        const SizedBox(height: 30),
 
-                        const SizedBox(height: 30), 
-
-                GestureDetector(
-                  onTap: loading ? null : registerUser,
-                  child: Container(
-                    height: 60,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(colors: [
-                        Color(0xffb51837),
-                        Color(0xff661c3a),
-                        Color(0xff301939),
-                      ],
-
-                      ),
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    child: loading
-                    ? const CircularProgressIndicator(
-                      color: Colors.white,
-                    ) : const Text(
-                      "SIGN UP",
-                  style: TextStyle(
+                        // Register Button
+                        GestureDetector(
+                          onTap: loading ? null : registerUser,
+                          child: Container(
+                            height: 60,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [
+                                  Color(0xffb51837),
+                                  Color(0xff661c3a),
+                                  Color(0xff301939),
+                                ],
+                              ),
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            child: loading
+                                ? const CircularProgressIndicator(
+                                    color: Colors.white,
+                                  )
+                                : const Text(
+                                    "SIGN UP",
+                                    style: TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 20,
-                                    ),    
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
+                                    ),
+                                  ),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
 
-                Center(
-                  child: GestureDetector(
-                    onTap: googleLoading ? null : signInWithGoogle,
-                    child: Container(
-                      height: 55,
-                      width: 260,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                      borderRadius: BorderRadius.circular(30), 
-                    border: Border.all(color: Colors.black26)
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Image.asset(
+                        // Google Sign-in Button
+                        Center(
+                          child: GestureDetector(
+                            onTap: googleLoading ? null : signInWithGoogle,
+                            child: Container(
+                              height: 55,
+                              width: 260,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(30),
+                                border: Border.all(color: Colors.black26),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Image.asset(
                                     "assets/images/google.webp",
                                     height: 28,
                                   ),
-                        const SizedBox(width: 10), 
-                        const Text("Sign up with Google", 
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold
-                        ),
-                        ),
-                          if (googleLoading) ...[
+                                  const SizedBox(width: 10),
+                                  const Text(
+                                    "Sign up with Google",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20,
+                                    ),
+                                  ),
+                                  if (googleLoading) ...[
                                     const SizedBox(width: 10),
                                     const CircularProgressIndicator(
                                       strokeWidth: 2,
                                     ),
-                                  ]      
-                        ],
-                      ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 25),
+
+                        // Already have account
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text("Already have an account? ",
+                            style: TextStyle(
+                              fontSize: 20, 
+                              fontWeight: FontWeight.bold,
+                            ),
+                            ),
+                            GestureDetector(
+                              onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const LoginPage(),
+                                ),
+                              ),
+                              child: const Text(
+                                "SIGN IN",
+                                style: TextStyle(
+                                  color: Colors.blueAccent,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                 ),
-                const SizedBox(height: 25),
-
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text("Already have an account?"),
-                    GestureDetector(
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LoginPage())),
-                      child: const Text(
-                        "SIGN IN",
-                        style: TextStyle(
-                          color: Colors.blueAccent, 
-                          fontWeight: FontWeight.bold
-                        ),
-                        ),
-                    )
-                  ],
-                )
-                    ],
-                  ),
-                ),
-              ),
-
               ],
             ),
-          )
           ),
+        ),
       ),
     );
   }

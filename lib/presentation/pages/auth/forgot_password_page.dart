@@ -10,8 +10,8 @@ class ForgotPasswordPage extends StatefulWidget {
 }
 
 class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController phoneController = TextEditingController();
+  final emailController = TextEditingController();
+  final phoneController = TextEditingController();
   bool loading = false;
 
   void showMessage(String msg, {bool error = false}) {
@@ -23,13 +23,10 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     );
   }
 
-  // ---------------- EMAIL RESET ----------------
+  // EMAIL RESET
   Future<void> resetWithEmail() async {
     final email = emailController.text.trim();
-    if (email.isEmpty) {
-      showMessage("Enter email", error: true);
-      return;
-    }
+    if (email.isEmpty) return showMessage("Enter email", error: true);
 
     try {
       setState(() => loading = true);
@@ -42,16 +39,15 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     }
   }
 
-  // ---------------- PHONE RESET ----------------
+  // PHONE OTP RESET
   Future<void> resetWithPhone() async {
     final phone = phoneController.text.trim();
 
     if (!phone.startsWith("+")) {
-      showMessage(
-        "Phone must start with country code. Ex: +91XXXXXXXXXX",
+      return showMessage(
+        "Phone must start with country code. Example: +91XXXXXXXXXX",
         error: true,
       );
-      return;
     }
 
     try {
@@ -59,19 +55,25 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
       await FirebaseAuth.instance.verifyPhoneNumber(
         phoneNumber: phone,
+
         verificationCompleted: (_) {},
-        verificationFailed: (e) => showMessage(e.message!, error: true),
+
+        verificationFailed: (e) =>
+            showMessage(e.message ?? 'Verification failed', error: true),
+
         codeSent: (verificationId, token) {
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (_) => OTPVerifyPage(
                 verificationId: verificationId,
-                email: emailController.text.trim(), phone: '',
+                email: emailController.text.trim(),
+                phone: phone, // <<< IMPORTANT — now phone is passed
               ),
             ),
           );
         },
+
         codeAutoRetrievalTimeout: (_) {},
       );
     } catch (e) {
@@ -97,7 +99,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             child: Column(
               children: [
                 const SizedBox(height: 30),
-
                 const Text(
                   "Forgot Password",
                   style: TextStyle(
@@ -106,7 +107,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                     color: Colors.white,
                   ),
                 ),
-
                 const SizedBox(height: 30),
 
                 Container(
@@ -120,7 +120,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // ---------------- EMAIL ----------------
                       const Text(
                         "Reset using Email",
                         style: TextStyle(
@@ -129,7 +128,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                           color: Color(0xffb51837),
                         ),
                       ),
-                      const SizedBox(height: 8),
 
                       TextField(
                         controller: emailController,
@@ -143,27 +141,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
                       GestureDetector(
                         onTap: loading ? null : resetWithEmail,
-                        child: Container(
-                          height: 50,
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xffb51837), Color(0xff661c3a)],
-                            ),
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          child: loading
-                              ? const CircularProgressIndicator(
-                                  color: Colors.white,
-                                )
-                              : const Text(
-                                  "Send Reset Link",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                        ),
+                        child: _button("Send Reset Link"),
                       ),
 
                       const SizedBox(height: 30),
@@ -181,7 +159,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
                       const SizedBox(height: 30),
 
-                      // ---------------- PHONE ----------------
                       const Text(
                         "Reset using Phone OTP",
                         style: TextStyle(
@@ -190,7 +167,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                           color: Color(0xffb51837),
                         ),
                       ),
-                      const SizedBox(height: 8),
 
                       TextField(
                         controller: phoneController,
@@ -204,27 +180,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
                       GestureDetector(
                         onTap: loading ? null : resetWithPhone,
-                        child: Container(
-                          height: 50,
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xffb51837), Color(0xff661c3a)],
-                            ),
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          child: loading
-                              ? const CircularProgressIndicator(
-                                  color: Colors.white,
-                                )
-                              : const Text(
-                                  "Send OTP",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                        ),
+                        child: _button("Send OTP"),
                       ),
                     ],
                   ),
@@ -236,4 +192,24 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       ),
     );
   }
+
+  Widget _button(String text) => Container(
+    height: 50,
+    alignment: Alignment.center,
+    decoration: BoxDecoration(
+      gradient: const LinearGradient(
+        colors: [Color(0xffb51837), Color(0xff661c3a)],
+      ),
+      borderRadius: BorderRadius.circular(30),
+    ),
+    child: loading
+        ? const CircularProgressIndicator(color: Colors.white)
+        : Text(
+            text,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+  );
 }
