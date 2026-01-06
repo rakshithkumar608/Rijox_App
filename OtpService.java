@@ -7,8 +7,9 @@ public class OtpService {
         StringBuilder otp = new StringBuilder();
         
         for (int i = 0; i < length; i++) {
-            otp.append(secureRandom.nextInt(10)); // Appends a digit between 0-9
+            otp.append(secureRandom.nextInt(10)); 
         }
         return otp.toString();
     }
+
 }
